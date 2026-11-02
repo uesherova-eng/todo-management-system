@@ -54,9 +54,17 @@ public class TodoController {
         todo.setUser(user);
         todo.setCreatedAt(LocalDateTime.now());
 
-        if (todo.getCompleted() == null) {
-            todo.setCompleted(false);
+        if (todo.getStatus() == null || todo.getStatus().isBlank()) {
+            todo.setStatus("To Do");
         }
+
+        if (!todo.getStatus().equals("To Do")
+                && !todo.getStatus().equals("In Progress")
+                && !todo.getStatus().equals("Completed")) {
+            throw new IllegalArgumentException("Invalid task status");
+        }
+
+        todo.setCompleted(todo.getStatus().equals("Completed"));
 
         return todoRepository.save(todo);
     }
@@ -74,7 +82,21 @@ public class TodoController {
 
         todo.setTitle(updatedTodo.getTitle());
         todo.setDescription(updatedTodo.getDescription());
-        todo.setCompleted(updatedTodo.getCompleted());
+        String status = updatedTodo.getStatus();
+
+        if (status != null && !status.isBlank()) {
+            if (!status.equals("To Do")
+                    && !status.equals("In Progress")
+                    && !status.equals("Completed")) {
+                throw new IllegalArgumentException("Invalid task status");
+            }
+
+            todo.setStatus(status);
+            todo.setCompleted(status.equals("Completed"));
+        } else if (updatedTodo.getCompleted() != null) {
+            todo.setCompleted(updatedTodo.getCompleted());
+            todo.setStatus(updatedTodo.getCompleted() ? "Completed" : "To Do");
+        }
         todo.setDueDate(updatedTodo.getDueDate());
 
         return todoRepository.save(todo);

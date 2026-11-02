@@ -2,7 +2,7 @@ To-Do Management SystemA task management application built with Java, Spring Boo
 cd todo-management-system
 Create a .env file in the project root directory and add:DB_PASSWORD=your_database_password
 Replace your_database_password with a password of your choice.Start the application:docker compose up --build -d
-Open the API documentation:http://localhost:8081/swagger-ui/index.htmlStop the Applicationdocker compose down
+Open the API documentation:http://localhost:8081/swagger-ui/index.html Stop the Applicationdocker compose down
 To stop the containers without deleting the database volume, use the command above.Project Structuretodo-management-system/
 ├── src/
 │   └── main/

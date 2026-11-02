@@ -1,0 +1,1120 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow — Task Management</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f1117;
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        aside {
+            width: 230px;
+            padding: 28px 20px;
+            background: #171a23;
+            border-right: 1px solid #292d3a;
+        }
+
+        .logo {
+            font-size: 23px;
+            font-weight: bold;
+            color: #a78bfa;
+            margin-bottom: 40px;
+        }
+
+        .nav-item {
+            display: block;
+            color: #a5adbd;
+            padding: 13px;
+            margin-bottom: 8px;
+            border-radius: 9px;
+            text-decoration: none;
+        }
+
+        .nav-item.active,
+        .nav-item:hover {
+            background: #29233f;
+            color: #c4b5fd;
+        }
+
+        main {
+            flex: 1;
+            padding: 35px;
+            min-width: 0;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .subtitle {
+            color: #939bad;
+            margin-top: 8px;
+        }
+
+        .avatar {
+            background: #3b315b;
+            color: #ddd6fe;
+            border-radius: 50%;
+            padding: 12px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #191d27;
+            border: 1px solid #292e3b;
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+        .stat-label {
+            color: #9ca3b5;
+            font-size: 14px;
+        }
+
+        .stat-number {
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: 14px;
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        button {
+            background: #6857c7;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 9px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #7c3aed;
+        }
+
+        .task {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        .task input {
+            width: 17px;
+            height: 17px;
+            accent-color: #8b5cf6;
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-info p {
+            color: #929bad;
+            font-size: 13px;
+            margin-top: 7px;
+        }
+
+        .priority {
+            color: #fbbf24;
+            font-size: 13px;
+        }
+
+        .done {
+            color: #8b95a7;
+            text-decoration: line-through;
+        }
+
+        .empty {
+            color: #939bad;
+            padding: 20px 0;
+        }
+
+        @media (max-width: 850px) {
+            .stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            aside {
+                width: 170px;
+                padding: 20px 12px;
+            }
+
+            main {
+                padding: 22px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .layout {
+                display: block;
+            }
+
+            aside {
+                width: 100%;
+                padding: 15px;
+                border-right: none;
+                border-bottom: 1px solid #292d3a;
+            }
+
+            .logo {
+                margin-bottom: 12px;
+            }
+
+            .nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+
+            .nav-item {
+                margin: 0;
+                padding: 9px;
+            }
+
+            main {
+                padding: 18px 14px;
+            }
+
+            .stats {
+                gap: 10px;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .stat-number {
+                font-size: 25px;
+            }
+
+            .priority {
+                display: none;
+            }
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 500px;
+            background: #171c2b;
+            border: 1px solid #30384d;
+            border-radius: 16px;
+            padding: 28px;
+            color: #f1f5f9;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            margin-bottom: 24px;
+        }
+
+        .modal-content label {
+            display: block;
+            margin: 16px 0 8px;
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        .modal-content input,
+        .modal-content textarea,
+        .modal-content select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            background: #0f1422;
+            color: #f8fafc;
+            font: inherit;
+            outline: none;
+        }
+
+        .modal-content input:focus,
+        .modal-content textarea:focus,
+        .modal-content select:focus {
+            border-color: #818cf8;
+        }
+
+        .modal-content textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-actions button {
+            padding: 11px 18px;
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .modal-actions button:first-child {
+            background: #30384d;
+            color: #f1f5f9;
+        }
+
+        .modal-actions button:last-child {
+            background: #6366f1;
+            color: white;
+        }
+
+        .modal-actions button:hover {
+            filter: brightness(1.15);
+        }
+
+        /* === DRAGON THEME: NIGHT SKY === */
+
+        body {
+            background:
+                    radial-gradient(ellipse at 85% 5%, #173e62 0%, transparent 35%),
+                    linear-gradient(135deg, #080f20, #101b32 55%, #0a1325);
+            color: #edf6ff;
+        }
+
+        aside {
+            background: linear-gradient(180deg, #101d34, #0a1224);
+            border-right: 1px solid #29476a;
+            position: relative;
+        }
+
+        .logo {
+            color: #8bd8ff;
+            letter-spacing: 1px;
+            text-shadow: 0 0 18px #2786c8;
+        }
+
+        .nav-item {
+            transition: background 0.25s, color 0.25s;
+        }
+
+        .nav-item.active,
+        .nav-item:hover {
+            background: linear-gradient(90deg, #183c60, #243051);
+            color: #a8e5ff;
+            box-shadow: inset 3px 0 #70d6ff;
+        }
+
+        .subtitle,
+        .stat-label {
+            color: #9db4d0;
+        }
+
+        .avatar {
+            background: linear-gradient(135deg, #193d60, #514d85);
+            color: #d9f5ff;
+            border: 1px solid #4a85ad;
+        }
+
+        .card {
+            background: linear-gradient(145deg, #172740, #111c30);
+            border: 1px solid #2c4b6d;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px #02081745;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .card:hover {
+            border-color: #65bce9;
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            color: #c5edff;
+            text-shadow: 0 0 16px #298cc044;
+        }
+
+        button {
+            background: linear-gradient(135deg, #267eb5, #514b98);
+            border: 1px solid #609cc7;
+            transition: filter 0.2s, transform 0.2s;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #369bd5, #6d65c5);
+            filter: brightness(1.08);
+        }
+
+        .task input {
+            accent-color: #62c9f5;
+        }
+
+        .task-info p {
+            color: #a1b6cf;
+        }
+
+        .priority {
+            background: #293751;
+            padding: 6px 10px;
+            border-radius: 20px;
+        }
+
+        .done {
+            color: #91a4b9;
+        }
+
+        .modal {
+            background: #020817c9;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #192b46, #0e192d);
+            border-color: #41658b;
+            box-shadow: 0 20px 70px #0009;
+        }
+
+        .modal-content label {
+            color: #b9d7f0;
+        }
+
+        .modal-content input,
+        .modal-content textarea,
+        .modal-content select {
+            background: #0a1528;
+            border-color: #365477;
+            color: #edf6ff;
+        }
+
+        .modal-content input:focus,
+        .modal-content textarea:focus,
+        .modal-content select:focus {
+            border-color: #75d8ff;
+            box-shadow: 0 0 0 3px #49b7ed22;
+        }
+
+        .modal-actions button:last-child {
+            background: linear-gradient(135deg, #267eb5, #514b98);
+        }
+
+        @media (max-width: 560px) {
+            aside {
+                background: #101d34;
+            }
+        }
+        .dragon-banner {
+            margin-bottom: 35px;
+        }
+
+        .dragon-banner img {
+            display: block;
+            width: 100%;
+            max-height: 130px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin-bottom: 14px;
+        }
+
+        .dragon-banner .logo {
+            margin-bottom: 8px;
+        }
+
+        .dragon-caption {
+            color: #8db8d8;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 560px) {
+            .dragon-banner img {
+                max-height: 85px;
+                object-position: left;
+            }
+
+            .dragon-banner {
+                margin-bottom: 15px;
+            }
+        }
+
+
+        /* Карточки задач — атмосфера мира драконов */
+        #taskList .card.task {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(100, 190, 255, 0.22);
+            background: linear-gradient(
+                    135deg,
+                    rgba(19, 38, 65, 0.96),
+                    rgba(12, 24, 44, 0.98)
+            );
+            border-radius: 14px;
+            transition: border-color 0.25s, transform 0.25s;
+        }
+
+        #taskList .card.task:hover {
+            border-color: rgba(111, 210, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Светящаяся линия в стиле Ночной Фурии */
+        #taskList .card.task::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(
+                    to bottom,
+                    #7ce7ff,
+                    #527dff
+            );
+            pointer-events: none;
+        }
+
+        /* Названия и описание задач */
+        #taskList .task-info strong {
+            color: #e5f5ff;
+        }
+
+        #taskList .task-info p {
+            color: #a9c5df;
+        }
+
+        /* Кнопки внутри карточек */
+        #taskList .card.task button {
+            border-radius: 8px;
+            transition: filter 0.2s;
+        }
+
+        #taskList .card.task button:hover {
+            filter: brightness(1.2);
+        }
+
+        /* Магическое сияние Ночной Фурии */
+        #taskList .card.task:hover {
+            border-color: rgba(124, 231, 255, 0.8);
+            box-shadow:
+                    0 0 12px rgba(75, 185, 255, 0.12),
+                    0 0 28px rgba(75, 185, 255, 0.08);
+        }
+
+        /* Голубые акценты для информации о задачах */
+        #taskList .task-info strong {
+            text-shadow: 0 0 12px rgba(124, 231, 255, 0.12);
+        }
+
+        /* Аккуратный вид флажка выполнения */
+        #taskList .card.task input[type="checkbox"] {
+            accent-color: #70dcff;
+            cursor: pointer;
+        }
+
+        /* Дневная Фурия — завершённые задачи */
+        #taskList .card.task.task-completed {
+            background: linear-gradient(
+                    135deg,
+                    rgba(225, 246, 255, 0.12),
+                    rgba(170, 224, 255, 0.06)
+            );
+            border-color: rgba(190, 235, 255, 0.45);
+        }
+
+        /* Светлая линия завершённой задачи */
+        #taskList .card.task.task-completed::before {
+            background: linear-gradient(
+                    to bottom,
+                    #ffffff,
+                    #a9e7ff,
+                    #d8f5ff
+            );
+        }
+
+        /* Мягкие светлые заголовки */
+        #taskList .card.task.task-completed .task-info strong {
+            color: #dff7ff;
+        }
+
+        /* Приглушённое описание выполненной задачи */
+        #taskList .card.task.task-completed .task-info p {
+            color: #b9d9e8;
+        }
+
+        /* Беззубик и Дневная Фурия в шапке */
+        .dragon-images {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .dragon-images img {
+            width: calc(50% - 5px);
+            height: 95px;
+            object-fit: contain;
+            border-radius: 12px;
+            transition: transform 0.25s, filter 0.25s;
+        }
+
+        /* Голубое сияние Ночной Фурии */
+        .dragon-images img:first-child {
+            filter: drop-shadow(0 0 8px rgba(100, 200, 255, 0.35));
+        }
+
+        /* Светлое сияние Дневной Фурии */
+        .dragon-images img:last-child {
+            filter: drop-shadow(0 0 8px rgba(220, 245, 255, 0.3));
+        }
+
+        .dragon-images img:hover {
+            transform: translateY(-3px) scale(1.04);
+        }
+
+        @media (max-width: 560px) {
+            .dragon-images img {
+                height: 65px;
+            }
+        }
+
+        /* Professional TaskFlow sidebar */
+        .sidebar {
+            background: linear-gradient(
+                    180deg,
+                    #071426 0%,
+                    #0b1d35 55%,
+                    #102744 100%
+            );
+            border-right: 1px solid rgba(76, 201, 255, 0.2);
+            box-shadow: 8px 0 30px rgba(0, 0, 0, 0.18);
+        }
+
+        .sidebar .logo {
+            color: #eaf7ff;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 0 14px rgba(76, 201, 255, 0.25);
+        }
+
+        .sidebar a,
+        .sidebar button {
+            border-radius: 10px;
+            transition:
+                    background 0.2s ease,
+                    color 0.2s ease,
+                    border-color 0.2s ease,
+                    transform 0.2s ease;
+        }
+
+        .sidebar a:hover,
+        .sidebar button:hover {
+            background: rgba(76, 201, 255, 0.1);
+            color: #8fe5ff;
+        }
+
+        .sidebar a.active,
+        .sidebar .active {
+            background: linear-gradient(
+                    90deg,
+                    rgba(40, 155, 220, 0.24),
+                    rgba(76, 201, 255, 0.06)
+            );
+            color: #8fe5ff;
+            border-left: 3px solid #4cc9ff;
+        }
+
+        /* Professional TaskFlow buttons */
+        button,
+        .btn,
+        .button {
+            border-radius: 10px;
+            font-weight: 600;
+            transition:
+                    background 0.2s ease,
+                    border-color 0.2s ease,
+                    box-shadow 0.2s ease,
+                    transform 0.2s ease;
+        }
+
+        /* Primary action buttons */
+        button[type="submit"],
+        .btn-primary,
+        .button-primary {
+            background: linear-gradient(135deg, #1479b8, #2454a4);
+            color: #ffffff;
+            border: 1px solid rgba(100, 210, 255, 0.45);
+            box-shadow: 0 4px 14px rgba(20, 121, 184, 0.18);
+        }
+
+        /* Hover effect */
+        button:hover,
+        .btn:hover,
+        .button:hover {
+            border-color: #4cc9ff;
+            box-shadow: 0 0 14px rgba(76, 201, 255, 0.2);
+        }
+
+        /* Click effect */
+        button:active,
+        .btn:active,
+        .button:active {
+            transform: scale(0.98);
+        }
+
+        /* Keyboard accessibility */
+        button:focus-visible,
+        .btn:focus-visible,
+        .button:focus-visible {
+            outline: 2px solid #4cc9ff;
+            outline-offset: 3px;
+        }
+
+        /* Task action buttons */
+        #taskList .card.task button {
+            padding: 9px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #dff6ff;
+            background: linear-gradient(135deg, #142d4b, #1a3c60);
+            border: 1px solid rgba(76, 201, 255, 0.28);
+            cursor: pointer;
+            box-shadow: none;
+            transition: all 0.2s ease;
+        }
+
+        /* Hover */
+        #taskList .card.task button:hover {
+            background: linear-gradient(135deg, #1b4b70, #245b8a);
+            border-color: #4cc9ff;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(76, 201, 255, 0.18);
+            transform: translateY(-1px);
+        }
+
+        /* Click */
+        #taskList .card.task button:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+
+        /* TaskFlow sidebar - correct HTML selector */
+        .layout > aside {
+            background: linear-gradient(
+                    180deg,
+                    #071426 0%,
+                    #0b1d35 55%,
+                    #102744 100%
+            );
+            border-right: 1px solid rgba(76, 201, 255, 0.25);
+            box-shadow: 8px 0 30px rgba(0, 0, 0, 0.18);
+        }
+
+        .layout > aside .logo {
+            color: #eaf7ff;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 0 14px rgba(76, 201, 255, 0.25);
+        }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+
+    <aside>
+        <div class="dragon-banner">
+            <div class="dragon-images">
+                <img src="/images/toothless.png" alt="Беззубик — Ночная Фурия">
+                <img src="/images/lightfury.png" alt="Дневная Фурия">
+            </div>
+
+            <div class="logo">✦ TaskFlow</div>
+            <p class="dragon-caption">Ночная Фурия · Твой помощник</p>
+        </div>
+
+        <nav class="nav">
+            <a href="#" class="nav-item active">Dashboard</a>
+            <a href="#tasks" class="nav-item">My Tasks</a>
+            <a href="#tasks" class="nav-item">Deadlines</a>
+            <a href="#statistics" class="nav-item">Statistics</a>
+        </nav>
+    </aside>
+
+    <main>
+        <header class="topbar">
+            <div>
+                <h1>Dashboard</h1>
+                <p class="subtitle">Manage your day, one task at a time.</p>
+            </div>
+            <div class="avatar">TF</div>
+        </header>
+
+        <section class="stats" id="statistics">
+            <div class="card">
+                <p class="stat-label">Total Tasks</p>
+                <p class="stat-number" id="total">3</p>
+            </div>
+
+            <div class="card">
+                <p class="stat-label">Completed</p>
+                <p class="stat-number" id="completed">1</p>
+            </div>
+
+            <div class="card">
+                <p class="stat-label">In Progress</p>
+                <p class="stat-number" id="progress">2</p>
+            </div>
+
+            <div class="card">
+                <p class="stat-label">Completion</p>
+                <p class="stat-number" id="percent">33%</p>
+            </div>
+        </section>
+
+        <section id="tasks">
+            <div class="section-heading">
+                <h2>My Tasks</h2>
+                <button onclick="addTask()">+ Add Task</button>
+            </div>
+
+            <div id="taskList">
+                <div class="card task">
+                    <input type="checkbox" onchange="updateTasks(this)">
+                    <div class="task-info">
+                        <strong>Finish Java project</strong>
+                        <p>Today · Programming</p>
+                    </div>
+                    <span class="priority">High</span>
+                </div>
+
+                <div class="card task">
+                    <input type="checkbox" onchange="updateTasks(this)">
+                    <div class="task-info">
+                        <strong>Prepare presentation</strong>
+                        <p>Tomorrow · University</p>
+                    </div>
+                    <span class="priority">Medium</span>
+                </div>
+
+                <div class="card task">
+                    <input type="checkbox" checked onchange="updateTasks(this)">
+                    <div class="task-info">
+                        <strong>Review database notes</strong>
+                        <p>Completed · Study</p>
+                    </div>
+                    <span class="priority">Low</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+</div>
+
+<script>
+    function updateTasks(checkbox) {
+        const task = checkbox.closest(".task");
+        const title = task.querySelector("strong");
+
+        title.classList.toggle("done", checkbox.checked);
+
+        const boxes = document.querySelectorAll("#taskList input[type='checkbox']");
+        const total = boxes.length;
+        const completed = document.querySelectorAll(
+            "#taskList input[type='checkbox']:checked"
+        ).length;
+
+        document.getElementById("total").textContent = total;
+        document.getElementById("completed").textContent = completed;
+        document.getElementById("progress").textContent = total - completed;
+        document.getElementById("percent").textContent =
+            (total === 0 ? 0 : Math.round(completed / total * 100)) + "%";
+    }
+
+
+
+    async function loadTasks() {
+        try {
+            const response = await fetch("/api/todos");
+
+            if (!response.ok) {
+                throw new Error("Failed to load tasks");
+            }
+
+            const tasks = await response.json();
+            const taskList = document.getElementById("taskList");
+
+            taskList.replaceChildren();
+
+            tasks.forEach(savedTask => {
+
+                const task = document.createElement("div");
+                task.className = "card task";
+
+                if (savedTask.completed === true) {
+                    task.classList.add("task-completed");
+                }
+
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.checked = savedTask.completed === true;
+
+                const info = document.createElement("div");
+                info.className = "task-info";
+
+                const name = document.createElement("strong");
+                name.textContent = savedTask.title;
+
+                const details = document.createElement("p");
+                details.textContent = savedTask.description || "No description";
+
+                const statusLabel = document.createElement("p");
+                statusLabel.textContent = "Status: " +
+                    (savedTask.status || (savedTask.completed ? "Completed" : "To Do"));
+
+                info.append(name, details, statusLabel);
+
+                if (savedTask.dueDate) {
+                    const deadlineLabel = document.createElement("p");
+                    deadlineLabel.textContent = "Deadline: " + savedTask.dueDate;
+                    info.appendChild(deadlineLabel);
+                }
+
+                checkbox.addEventListener("change", async function () {
+                    try {
+                        const updateResponse = await fetch(
+                            `/api/todos/${savedTask.id}`,
+                            {
+                                method: "PUT",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    title: savedTask.title,
+                                    description: savedTask.description,
+                                    dueDate: savedTask.dueDate,
+                                    completed: checkbox.checked,
+                                    status: checkbox.checked ? "Completed" : "To Do"
+                                })
+                            }
+                        );
+
+                        if (!updateResponse.ok) {
+                            throw new Error("Update failed");
+                        }
+
+                        statusLabel.textContent = "Status: " +
+                            (checkbox.checked ? "Completed" : "To Do");
+                        task.classList.toggle("task-completed", checkbox.checked);
+
+                        updateTasks(checkbox);
+                    } catch (error) {
+                        checkbox.checked = !checkbox.checked;
+                        alert("Could not update task.");
+                    }
+                });
+
+                const editButton = document.createElement("button");
+                editButton.textContent = "✏️ Edit";
+                editButton.type = "button";
+
+                editButton.addEventListener("click", function () {
+                    editingTaskId = savedTask.id;
+
+                    document.getElementById("taskTitle").value = savedTask.title;
+                    document.getElementById("taskDescription").value =
+                        savedTask.description || "";
+                    document.getElementById("taskDeadline").value =
+                        savedTask.dueDate || "";
+                    document.getElementById("taskStatus").value =
+                        savedTask.status || (savedTask.completed ? "Completed" : "To Do");
+                    document.getElementById("taskModal").style.display = "block";
+                });
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "🗑️ Delete";
+                deleteButton.type = "button";
+
+                deleteButton.addEventListener("click", async function () {
+                    const confirmed = confirm("Are you sure you want to delete this task?");
+
+                    if (!confirmed) {
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`/api/todos/${savedTask.id}`, {
+                            method: "DELETE"
+                        });
+
+                        if (!response.ok) {
+                            throw new Error("Delete failed");
+                        }
+
+                        task.remove();
+                        updateTasks(checkbox);
+                    } catch (error) {
+                        console.error("Error deleting task:", error);
+                        alert("Could not delete the task. Please try again.");
+                    }
+                });
+
+                task.append(checkbox, info, editButton, deleteButton);
+                taskList.appendChild(task);
+            });
+
+            document.querySelectorAll("#taskList input[type='checkbox']")
+                .forEach(checkbox => updateTasks(checkbox));
+
+        } catch (error) {
+            console.error("Error loading tasks:", error);
+            alert("Could not load tasks from the database.");
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadTasks);
+    let editingTaskId = null;
+    function addTask() {
+        editingTaskId = null;
+        document.getElementById("taskModal").style.display = "flex";
+        document.getElementById("taskTitle").focus();
+    }
+
+    function closeTaskModal() {
+        document.getElementById("taskModal").style.display = "none";
+    }
+
+
+
+    async function saveTask() {
+        const title = document.getElementById("taskTitle").value.trim();
+        const description = document.getElementById("taskDescription").value.trim();
+        const deadline = document.getElementById("taskDeadline").value;
+        const status = document.getElementById("taskStatus").value;
+
+        if (!title) {
+            alert("Please enter a task title.");
+            return;
+        }
+
+        const taskData = {
+            title: title,
+            description: description,
+            dueDate: deadline || null,
+            completed: status === "Completed",
+            status: status,
+            user: { id: 1 }
+        };
+
+        try {
+            const url = editingTaskId === null
+                ? "/api/todos"
+                : `/api/todos/${editingTaskId}`;
+
+            const method = editingTaskId === null ? "POST" : "PUT";
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(taskData)
+            });
+
+            if (!response.ok) {
+                throw new Error("Could not save task");
+            }
+
+            alert(editingTaskId === null
+                ? "Task created successfully!"
+                : "Task updated successfully!");
+
+            editingTaskId = null;
+
+            closeTaskModal();
+            await loadTasks();
+
+        } catch (error) {
+            console.error("Error saving task:", error);
+            alert("Could not save the task. Please try again.");
+        }
+    }
+</script>
+
+<div id="taskModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h2>Create New Task</h2>
+
+        <label for="taskTitle">Task Title *</label>
+        <input id="taskTitle" type="text" placeholder="Enter task name" required>
+
+        <label for="taskDescription">Description</label>
+        <textarea id="taskDescription" placeholder="Describe your task"></textarea>
+
+        <label for="taskDeadline">Deadline</label>
+        <input id="taskDeadline" type="date">
+
+        <label for="taskPriority">Priority</label>
+        <select id="taskPriority">
+            <option value="Low">Low</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="High">High</option>
+        </select>
+
+        <label for="taskStatus">Status</label>
+        <select id="taskStatus">
+            <option value="To Do">To Do</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+        </select>
+
+        <div class="modal-actions">
+            <button onclick="closeTaskModal()">Cancel</button>
+            <button onclick="saveTask()">Create Task</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

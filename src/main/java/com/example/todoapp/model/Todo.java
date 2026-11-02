@@ -25,6 +25,8 @@ public class Todo {
 
     @Column(nullable = false)
     private Boolean completed = false;
+    @Column(nullable = false, length = 20)
+    private String status = "To Do";
 
     @Column(name = "due_date")
     private LocalDate dueDate;
