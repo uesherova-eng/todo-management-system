@@ -28,6 +28,10 @@ public class Todo {
     @Column(nullable = false, length = 20)
     private String status = "To Do";
 
+    @Column(nullable = false, length = 20)
+    private String priority = "Medium";
+
+
     @Column(name = "due_date")
     private LocalDate dueDate;
 

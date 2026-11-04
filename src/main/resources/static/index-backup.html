@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -759,6 +760,209 @@
             letter-spacing: 1px;
             text-shadow: 0 0 14px rgba(76, 201, 255, 0.25);
         }
+
+
+        /* === TASKFLOW NIGHT FURY: visual refresh, stage 1 === */
+        :root {
+            color-scheme: dark;
+            --tf-bg: #07111f;
+            --tf-panel: rgba(16, 31, 52, .82);
+            --tf-line: rgba(110, 190, 255, .19);
+            --tf-cyan: #79ddff;
+            --tf-text: #eff8ff;
+            --tf-muted: #9eb5ce;
+        }
+
+        body {
+            background:
+                radial-gradient(ellipse at 78% 4%, rgba(30, 105, 158, .28), transparent 34%),
+                radial-gradient(ellipse at 12% 90%, rgba(38, 75, 135, .20), transparent 36%),
+                linear-gradient(135deg, #07111f 0%, #0b1930 52%, #081322 100%);
+            color: var(--tf-text);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: .28;
+            background-image: radial-gradient(1px 1px at 20% 30%, #d8f5ff 98%, transparent),
+                              radial-gradient(1px 1px at 72% 18%, #a9dfff 98%, transparent),
+                              radial-gradient(2px 2px at 88% 72%, #d8f5ff 98%, transparent),
+                              radial-gradient(1px 1px at 42% 82%, #a9dfff 98%, transparent);
+            background-size: 260px 220px;
+        }
+
+        .layout { position: relative; z-index: 1; }
+        .layout > aside {
+            background: linear-gradient(180deg, rgba(5, 17, 33, .97), rgba(10, 31, 54, .96));
+            border-right: 1px solid rgba(105, 205, 255, .20);
+            box-shadow: 12px 0 42px rgba(0, 0, 0, .24);
+        }
+        main { padding: 38px clamp(22px, 3vw, 52px); }
+        .topbar { margin-bottom: 34px; }
+        .topbar h1 { font-size: clamp(27px, 3vw, 36px); letter-spacing: -.8px; }
+        .subtitle { color: #a9c5df; }
+        .avatar {
+            min-width: 44px; min-height: 44px; display: grid; place-items: center;
+            border: 1px solid rgba(126, 213, 255, .38);
+            background: linear-gradient(145deg, #1a4266, #34346d);
+            box-shadow: 0 0 24px rgba(79, 186, 255, .16);
+        }
+        .stats { gap: 18px; }
+        .stats .card, #taskList .card.task {
+            background: linear-gradient(145deg, rgba(20, 42, 68, .94), rgba(11, 25, 45, .96));
+            border: 1px solid var(--tf-line);
+            box-shadow: 0 12px 34px rgba(0, 0, 0, .16), inset 0 1px rgba(255,255,255,.025);
+            backdrop-filter: blur(12px);
+        }
+        .stats .card { min-height: 112px; transition: transform .22s, border-color .22s; }
+        .stats .card:hover { transform: translateY(-3px); border-color: rgba(121, 221, 255, .48); }
+        .stat-label { color: #a8c3dc; }
+        .stat-number { color: #e4f7ff; text-shadow: 0 0 18px rgba(91, 202, 255, .18); }
+        .section-heading h2 { font-size: 21px; letter-spacing: -.3px; }
+        button {
+            background: linear-gradient(120deg, #168bb7, #5554a5);
+            border: 1px solid rgba(146, 225, 255, .25);
+            box-shadow: 0 8px 22px rgba(30, 139, 190, .18);
+            font-weight: 700;
+            transition: transform .2s, filter .2s, box-shadow .2s;
+        }
+        button:hover { background: linear-gradient(120deg, #20a5d4, #6865c4); transform: translateY(-1px); }
+
+        .dragon-banner { margin-bottom: 30px; }
+        .dragon-stage {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: 20px;
+            min-height: 260px;
+            margin: 0 -5px 22px;
+            padding: 20px 10px;
+            overflow: hidden;
+            border-radius: 24px;
+            background:
+                    radial-gradient(ellipse at 25% 50%, rgba(38, 137, 210, .25), transparent 45%),
+                    radial-gradient(ellipse at 75% 50%, rgba(210, 235, 255, .22), transparent 45%),
+                    linear-gradient(135deg, #071426, #102b49 50%, #101b35);
+            box-shadow:
+                    inset 0 0 45px rgba(71, 165, 255, .12),
+                    0 12px 35px rgba(0, 0, 0, .25);
+        }
+        .dragon-orbit {
+            min-width: 0;
+            min-height: 210px;
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 10px 5px;
+            overflow: visible;
+            isolation: isolate;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+        }
+        .dragon-orbit::before {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: radial-gradient(
+                    circle,
+                    rgba(95, 190, 255, .20),
+                    rgba(95, 190, 255, .07) 45%,
+                    transparent 72%
+            );
+            filter: blur(12px);
+            z-index: -1;
+            animation: dragon-glow 3.5s ease-in-out infinite;
+        }
+        .dragon-orbit img {
+            width: 100%;
+            height: 175px;
+            object-fit: contain;
+            display: block;
+            background: transparent !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            margin: 0;
+            padding: 0;
+            filter: drop-shadow(0 0 18px rgba(90, 190, 255, .4));
+            animation: dragon-hover 5s ease-in-out infinite;
+            transition: filter .3s, transform .3s;
+        }
+        .light-orbit img { animation-delay: -2.4s; filter: drop-shadow(0 8px 13px rgba(212, 238, 255, .34)); }
+        .dragon-orbit:hover img {
+            animation-play-state: paused;
+            transform: scale(1.08) translateY(-3px);
+            filter:
+                    drop-shadow(0 0 12px rgba(116, 222, 255, .65))
+                    drop-shadow(0 0 25px rgba(116, 222, 255, .35));
+        }
+        .dragon-orbit strong { color: #e7f7ff; font-size: 11px; letter-spacing: .5px; margin-top: 3px; }
+        .dragon-orbit small { color: #8eb9d8; font-size: 10px; margin-top: 3px; }
+        .light-orbit strong { color: #e9eaff; }
+        .dragon-status-dot { position: absolute; top: 10px; right: 10px; width: 7px; height: 7px; border-radius: 50%; background: #68d8ff; box-shadow: 0 0 10px #68d8ff; }
+        .light-orbit .dragon-status-dot { background: #d5eaff; box-shadow: 0 0 10px #d5eaff; }
+        @keyframes dragon-hover {
+            0%, 100% {
+                transform: translateY(0) rotate(-1deg) scale(1);
+            }
+            25% {
+                transform: translateY(-4px) rotate(0deg) scale(1.015);
+            }
+            50% {
+                transform: translateY(-9px) rotate(1deg) scale(1.025);
+            }
+            75% {
+                transform: translateY(-4px) rotate(0deg) scale(1.015);
+            }
+        }
+
+        @keyframes dragon-glow {
+            0%, 100% {
+                opacity: 0.55;
+                transform: scale(0.92);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.08);
+            }
+        }
+        .dragon-caption { color: #91b9d8; font-size: 11px; line-height: 1.6; }
+        .logo { color: #effaff; text-shadow: 0 0 18px rgba(95, 203, 255, .25); }
+        .nav-item { color: #a9bfd5; border: 1px solid transparent; transition: .2s; }
+        .nav-item.active, .nav-item:hover { background: linear-gradient(100deg, rgba(39, 133, 178, .25), rgba(74, 89, 159, .20)); color: #dff7ff; border-color: rgba(105, 206, 255, .17); }
+        #taskList .card.task { border-radius: 16px; }
+        #taskList .card.task.task-completed { background: linear-gradient(145deg, rgba(30, 48, 69, .92), rgba(15, 26, 43, .96)); border-color: rgba(207, 231, 255, .28); }
+        #taskList .card.task.task-completed::before { background: linear-gradient(to bottom, #dceeff, #91b8d8); }
+        #taskList .task-info strong { color: #eff9ff; }
+        #taskList .task-info p { color: #a9c4dc; }
+
+        @media (max-width: 850px) {
+            .dragon-orbit { min-height: 140px; }
+            .dragon-orbit img { height: 88px; }
+        }
+        @media (max-width: 560px) {
+            .dragon-stage { max-width: 330px; grid-template-columns: 1fr 1fr; }
+            .dragon-orbit { min-height: 132px; }
+            .dragon-orbit img { height: 82px; }
+            .dragon-caption { margin-bottom: 6px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+        }
+
     </style>
 </head>
 
@@ -767,13 +971,23 @@
 
     <aside>
         <div class="dragon-banner">
-            <div class="dragon-images">
-                <img src="/images/toothless.png" alt="Беззубик — Ночная Фурия">
-                <img src="/images/lightfury.png" alt="Дневная Фурия">
+            <div class="dragon-stage" aria-label="Драконы TaskFlow">
+                <div class="dragon-orbit night-orbit">
+                    <span class="dragon-status-dot"></span>
+                    <img src="/images/toothless.png" alt="Беззубик — Ночная Фурия">
+                    <strong>Night Fury</strong>
+                    <small>Новые задачи</small>
+                </div>
+                <div class="dragon-orbit light-orbit">
+                    <span class="dragon-status-dot"></span>
+                    <img src="/images/lightfury.png" alt="Дневная Фурия">
+                    <strong>Light Fury</strong>
+                    <small>Выполнено</small>
+                </div>
             </div>
 
             <div class="logo">✦ TaskFlow</div>
-            <p class="dragon-caption">Ночная Фурия · Твой помощник</p>
+            <p class="dragon-caption">Твой мир задач. Твой собственный ритм.</p>
         </div>
 
         <nav class="nav">
@@ -1118,3 +1332,4 @@
 </div>
 </body>
 </html>
+```
